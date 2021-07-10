@@ -252,8 +252,9 @@ blecent_scan(void)
     disc_params.passive = 1;
 
     /* Use defaults for the rest of the parameters. */
-    disc_params.itvl = 0;
-    disc_params.window = 0;
+    // Scan interval and window in 0.625ms units.
+    disc_params.itvl = 10000;
+    disc_params.window = 10000;
     disc_params.filter_policy = 0;
     disc_params.limited = 0;
 
