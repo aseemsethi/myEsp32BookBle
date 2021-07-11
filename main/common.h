@@ -32,3 +32,5 @@ void wifi_eraseconfig(void);
 void printDiags(void);
 void ble_main(void);
 void wifi_mqtt_start(void*);
+void wifi_send_mqtt(char*);
+

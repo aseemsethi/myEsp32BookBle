@@ -32,6 +32,7 @@
 static const char *tag = "NimBLE_BLE_CENT";
 static const char *TAG = "BLE";
 static int blecent_gap_event(struct ble_gap_event *event, void *arg);
+void wifi_send_mqtt(char*);
 //static uint8_t peer_addr[6];
 
 void ble_store_config_init(void);
@@ -377,6 +378,7 @@ blecent_gap_event(struct ble_gap_event *event, void *arg)
     struct ble_gap_conn_desc desc;
     struct ble_hs_adv_fields fields;
     int rc;
+    char tmp[50]; 
 
     switch (event->type) {
     case BLE_GAP_EVENT_DISC:
@@ -405,7 +407,7 @@ blecent_gap_event(struct ble_gap_event *event, void *arg)
                     printf("\n BLE: Device ID: %02x %02x %02x", fields.mfg_data[1], 
                     fields.mfg_data[2], fields.mfg_data[3]);
                     char buff[8];
-                    snprintf(buff, 8, "%02x%02x%02x\n", fields.mfg_data[1], 
+                    snprintf(buff, 8, "%02x%02x%02x", fields.mfg_data[1], 
                         fields.mfg_data[2], fields.mfg_data[3]);
                     printf("\n TAG: %s", buff);
                     int typeid = fields.mfg_data[4] & 0x3F; // this is 0x6 for Door, low 6 bits
@@ -414,10 +416,15 @@ blecent_gap_event(struct ble_gap_event *event, void *arg)
                     // fields.mfg_data[6] and fields.mfg_data[7] are ControlData denoting 
                     // Frame Numbers
                     // eventData > 0 - door open
-                    if (eventData == 2)
+                    if (eventData == 2) {
+                        sprintf(tmp, "Door:%s:Open", buff);
                         ESP_LOGI(TAG, "\nBLE: Door Alarm: %02x/%02x\n", typeid, eventData);
-                    else
+                    }
+                    else {
+                        sprintf(tmp, "Door:%s:Closed", buff);
                         ESP_LOGI(TAG, "\nBLE: Door No Alarm: %02x/%02x\n", typeid, eventData);                        
+                    }
+                    wifi_send_mqtt(tmp);
                 }
             }
         }
