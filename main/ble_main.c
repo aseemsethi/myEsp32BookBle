@@ -32,7 +32,7 @@
 static const char *tag = "NimBLE_BLE_CENT";
 static const char *TAG = "BLE";
 static int blecent_gap_event(struct ble_gap_event *event, void *arg);
-static uint8_t peer_addr[6];
+//static uint8_t peer_addr[6];
 
 void ble_store_config_init(void);
 

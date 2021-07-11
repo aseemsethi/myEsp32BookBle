@@ -31,3 +31,4 @@ void smartconfig_event_handler(void* arg, esp_event_base_t event_base,
 void wifi_eraseconfig(void);
 void printDiags(void);
 void ble_main(void);
+void wifi_mqtt_start(void*);

@@ -13,6 +13,8 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 EventGroupHandle_t s_wifi_event_group;
 const int WIFI_CONNECTED_BIT = BIT0;
 const int WIFI_FAIL_BIT = BIT1;
+char gDevIP[60];
+
 wifi_config_t wifi_config = {
     .sta = {
         //.ssid = EXAMPLE_ESP_WIFI_SSID,
@@ -123,7 +125,7 @@ void app_main(void)
 
     // file to setup an INTR to clear WiFi NVS storage
     // On standard ESP32:
-    //      Boot button is connected to GPIO0 and pressing that, erases the WiFi storage
+    // Boot button is connected to GPIO0 and pressing that, erases the WiFi storage
     // data that contains username/password
     // Learnings from https://github.com/lucadentella/esp32-tutorial
     wifi_eraseconfig(); 
@@ -139,7 +141,6 @@ void app_main(void)
     io_conf.pull_down_en = 1;
     io_conf.pull_up_en = 0;
     gpio_config(&io_conf);
-
 
     while(1) {
         TickType_t xDelay = 500 / portTICK_PERIOD_MS;
@@ -204,7 +205,11 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
         //s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+        ESP_LOGI(TAG, "got ip:%s\n", ip4addr_ntoa((const struct ip4_addr*)&event->ip_info.ip));
+
         ble_main();
+        TaskHandle_t mqttHandle = NULL;
+        xTaskCreate(wifi_mqtt_start, "WiFi MQTTTask", 4096, NULL, 1, mqttHandle);
     }
 }
 
